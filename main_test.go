@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/project-copacetic/copacetic/pkg/types"
+	types "github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
 )
 
 func Test_parseFakeReport(t *testing.T) {

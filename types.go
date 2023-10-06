@@ -1,3 +1,4 @@
+// Type definitions for fake scanner report
 package main
 
 // FakeReport contains OS, Arch, and Package information

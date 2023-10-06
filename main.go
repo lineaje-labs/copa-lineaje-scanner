@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/project-copacetic/copacetic/pkg/types"
+	v1alpha1 "github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
 )
 
 type FakeParser struct{}
@@ -29,7 +29,7 @@ func NewFakeParser() *FakeParser {
 	return &FakeParser{}
 }
 
-func (k *FakeParser) Parse(file string) (*types.UpdateManifest, error) {
+func (k *FakeParser) Parse(file string) (*v1alpha1.UpdateManifest, error) {
 	// Parse the fake report
 	report, err := parseFakeReport(file)
 	if err != nil {
@@ -37,7 +37,8 @@ func (k *FakeParser) Parse(file string) (*types.UpdateManifest, error) {
 	}
 
 	// Create the standardized report
-	updates := types.UpdateManifest{
+	updates := v1alpha1.UpdateManifest{
+		APIVersion: v1alpha1.APIVersion,
 		OSType:    report.OSType,
 		OSVersion: report.OSVersion,
 		Arch:      report.Arch,
@@ -47,7 +48,7 @@ func (k *FakeParser) Parse(file string) (*types.UpdateManifest, error) {
 	for i := range report.Packages {
 		pkgs := &report.Packages[i]
 		if pkgs.FixedVersion != "" {
-			updates.Updates = append(updates.Updates, types.UpdatePackage{
+			updates.Updates = append(updates.Updates, v1alpha1.UpdatePackage{
 				Name: pkgs.Name,
 				InstalledVersion: pkgs.InstalledVersion,
 				FixedVersion: pkgs.FixedVersion,
