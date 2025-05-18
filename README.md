@@ -2,7 +2,7 @@
 
 This is a template repo for creating a scanner plugin for [Copacetic](https://github.com/project-copacetic/copacetic).
 
-Learn more about Copacetic's scanner plugins [here](https://project-copacetic.github.io/copacetic/scanner-plugins).
+Learn more about Copacetic's scanner plugins [here](https://project-copacetic.github.io/copacetic/website/scanner-plugins).
 
 ## Development
 
