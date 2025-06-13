@@ -32,24 +32,24 @@ This is an example development workflow for this template.
 
 ```shell
 # clone this repo
-git clone https://github.com/project-copacetic/scanner-plugin-template.git
+git clone https://github.com/lineaje-labs/copa-lineaje-scanner.git
 
 # change directory to the repo
-cd scanner-plugin-template
+cd copa-lineaje-scanner
 
-# build the copa-fake binary
+# build the copa-lineaje-scanner binary
 make
 
-# add copa-fake binary to PATH
+# add copa-lineaje-scanner binary to PATH
 export PATH=$PATH:dist/linux_amd64/release/
 
 # test plugin with example config
-copa-fake testdata/fake_report.json
+copa-lineaje-scanner report.json
 # this will print the report in JSON format
-# {"apiVersion":"v1alpha1","metadata":{"os":{"type":"FakeOS","version":"42"},"config":{"arch":"amd64"}},"updates":[{"name":"foo","installedVersion":"1.0.0","fixedVersion":"1.0.1","vulnerabilityID":"VULN001"},{"name":"bar","installedVersion":"2.0.0","fixedVersion":"2.0.1","vulnerabilityID":"VULN002"}]}
+#  {"apiVersion":"v1alpha1","metadata":{"os":{"type":"debian","version":"11"},"config":{"arch":"amd64"}},"updates":[{"name":"ncurses-bin","installedVersion":"6.2+20201114-2","fixedVersion":"6.2+20201114-2+deb11u2","vulnerabilityID":"CVE-1234-56789"},{"name":"perl-base","installedVersion":"5.32.1-4+deb11u2","fixedVersion":"5.32.1-4+deb11u4","vulnerabilityID":"CVE-1234-56789"}]}
 
-# run copa with the scanner plugin (copa-fake) and the report file
-copa patch -i $IMAGE -r testdata/fake_report.json --scanner fake
+# run copa with the scanner plugin (copa-lineaje-scanner) and the report file
+copa patch -i $IMAGE -r report.json --scanner lineaje
 # this is for illustration purposes only
-# it will fail with "Error: unsupported osType FakeOS specified"
+# it will fail with "Error: unsupported osType debian specified"
 ```
