@@ -1,0 +1,32 @@
+name: Manual Build and Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref_type:
+        description: 'The type of ref to checkout (branch or tag)'
+        required: true
+        default: 'branch'
+        type: choice
+        options:
+        - branch
+        - tag
+      ref_name:
+        description: 'The name of the branch or tag to checkout'
+        required: true
+        type: string
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref_type == 'branch' && format('refs/heads/{0}', github.event.inputs.ref_name) || format('refs/tags/{0}', github.event.inputs.ref_name) }}
+
+      - name: Build
+        run: make
+
+      - name: Test
+        run: make test
