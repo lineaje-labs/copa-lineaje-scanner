@@ -4,17 +4,6 @@ This is a template repo for creating a scanner plugin for [Copacetic](https://gi
 
 Learn more about Copacetic's scanner plugins [here](https://project-copacetic.github.io/copacetic/scanner-plugins).
 
-## Development
-
-These instructions are for developing a new scanner plugin for [Copacetic](https://github.com/project-copacetic/copacetic) from this template.
-
-1. Clone this repo
-2. Rename the `scanner-plugin-template` repo to the name of your plugin
-3. Update applicable types for [`FakeReport`](types.go) to match your scanner's structure
-4. Update [`parse`](main.go) to parse your scanner's report format accordingly
-5. Update `CLI_BINARY` in the [`Makefile`](Makefile) to match your scanner's CLI binary name (resulting binary must be prefixed with `copa-`)
-5. Update this [`README.md`](README.md) to match your plugin's usage
-
 ## Development Pre-requisites
 
 > [!NOTE]
@@ -32,24 +21,24 @@ This is an example development workflow for this template.
 
 ```shell
 # clone this repo
-git clone https://github.com/project-copacetic/scanner-plugin-template.git
+git clone https://github.com/lineaje-labs/copa-lineaje-scanner.git
 
 # change directory to the repo
-cd scanner-plugin-template
+cd copa-lineaje-scanner
 
-# build the copa-fake binary
+# build the copa-lineaje-scanner binary
 make
 
-# add copa-fake binary to PATH
+# add copa-lineaje-scanner binary to PATH
 export PATH=$PATH:dist/linux_amd64/release/
 
 # test plugin with example config
-copa-fake testdata/fake_report.json
+copa-lineaje-scanner testdata/fake_report.json
 # this will print the report in JSON format
-# {"apiVersion":"v1alpha1","metadata":{"os":{"type":"FakeOS","version":"42"},"config":{"arch":"amd64"}},"updates":[{"name":"foo","installedVersion":"1.0.0","fixedVersion":"1.0.1","vulnerabilityID":"VULN001"},{"name":"bar","installedVersion":"2.0.0","fixedVersion":"2.0.1","vulnerabilityID":"VULN002"}]}
+# {"apiVersion":"v1alpha1","metadata":{"os":{"type":"alpine","version":"3.18.0"},"config":{"arch":"x86_64"}},"updates":[{"name":"ssl_client","installedVersion":"1.36.0-r9","fixedVersion":"1.36.1-r7","vulnerabilityID":""},{"name":"musl","installedVersion":"1.2.4-r0","fixedVersion":"1.2.4-r3","vulnerabilityID":""},{"name":"libssl3","installedVersion":"3.1.0-r4","fixedVersion":"3.1.8-r0","vulnerabilityID":""},{"name":"musl-utils","installedVersion":"1.2.4-r0","fixedVersion":"1.2.4-r3","vulnerabilityID":""},{"name":"busybox-binsh","installedVersion":"1.36.0-r9","fixedVersion":"1.36.1-r7","vulnerabilityID":""},{"name":"libcrypto3","installedVersion":"3.1.0-r4","fixedVersion":"3.1.8-r0","vulnerabilityID":""},{"name":"busybox","installedVersion":"1.36.0-r9","fixedVersion":"1.36.1-r7","vulnerabilityID":""}]}
 
-# run copa with the scanner plugin (copa-fake) and the report file
-copa patch -i $IMAGE -r testdata/fake_report.json --scanner fake
+# run copa with the scanner plugin (copa-lineaje-scanner) and the report file
+copa patch -i $IMAGE -r testdata/fake_report.json --scanner lineaje-scanner
 # this is for illustration purposes only
 # it will fail with "Error: unsupported osType FakeOS specified"
 ```

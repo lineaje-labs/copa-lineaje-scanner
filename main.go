@@ -8,30 +8,30 @@ import (
 	v1alpha1 "github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
 )
 
-type FakeParser struct{}
+type LineajeParser struct{}
 
-// parseFakeReport parses a fake report from a file
-func parseFakeReport(file string) (*FakeReport, error) {
+// parseLineajeReport parses a Lineaje report from a file
+func parseLineajeReport(file string) (*LineajeReport, error) {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		return nil, err
 	}
 
-	var fake FakeReport
-	if err = json.Unmarshal(data, &fake); err != nil {
+	var lineajeReport LineajeReport
+	if err = json.Unmarshal(data, &lineajeReport); err != nil {
 		return nil, err
 	}
 
-	return &fake, nil
+	return &lineajeReport, nil
 }
 
-func newFakeParser() *FakeParser {
-	return &FakeParser{}
+func newLineajeParser() *LineajeParser {
+	return &LineajeParser{}
 }
 
-func (k *FakeParser) parse(file string) (*v1alpha1.UpdateManifest, error) {
-	// Parse the fake report
-	report, err := parseFakeReport(file)
+func (k *LineajeParser) parse(file string) (*v1alpha1.UpdateManifest, error) {
+	// Parse the Lineaje report
+	report, err := parseLineajeReport(file)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func (k *FakeParser) parse(file string) (*v1alpha1.UpdateManifest, error) {
 		},
 	}
 
-	// Convert the fake report to the standardized report
+	// Convert the Lineaje report to the standardized report
 	for i := range report.Packages {
 		pkgs := &report.Packages[i]
 		if pkgs.FixedVersion != "" {
@@ -72,12 +72,12 @@ func main() {
 	}
 
 	// Initialize the parser
-	fakeParser := newFakeParser()
+	lineajeReportParser := newLineajeParser()
 
 	// Get the image report from command line
 	imageReport := os.Args[1]
 
-	report, err := fakeParser.parse(imageReport)
+	report, err := lineajeReportParser.parse(imageReport)
 	if err != nil {
 		fmt.Printf("error parsing report: %v\n", err)
 		os.Exit(1)
