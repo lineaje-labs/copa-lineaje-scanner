@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/lineaje-labs/copa-lineaje-scanner/internal/cmd"
 	"github.com/package-url/packageurl-go"
 	"github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
 )
@@ -171,6 +172,10 @@ func main() {
 	if len(os.Args) != 2 {
 		fmt.Printf("Usage: %s <image report>\n", os.Args[0])
 		os.Exit(1)
+	}
+	if os.Args[1] == "version" {
+		fmt.Print(cmd.GetVersion())
+		os.Exit(0)
 	}
 
 	// Initialize the parser

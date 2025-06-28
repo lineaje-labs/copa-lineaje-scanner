@@ -1,4 +1,4 @@
-module github.com/project-copacetic/scanner-plugin-template
+module github.com/lineaje-labs/copa-lineaje-scanner
 
 go 1.21
 
