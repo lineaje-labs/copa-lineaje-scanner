@@ -1,4 +1,4 @@
-package main
+package parser
 
 import (
 	"reflect"
@@ -20,7 +20,7 @@ func TestNewLineajeParser(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newLineajeParser(); !reflect.DeepEqual(got, tt.want) {
+			if got := NewLineajeParser(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewLineajeParser() = %v, want %v", got, tt.want)
 			}
 		})
@@ -116,7 +116,7 @@ func TestLineajeParser_Parse(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := tt.parser.parse(tt.file)
+			got, err := tt.parser.Parse(tt.file)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("LineajeParser.parse() error = %v, wantErr %v", err, tt.wantErr)
 			}
