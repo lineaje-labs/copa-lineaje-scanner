@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	v1alpha1 "github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
+	"github.com/package-url/packageurl-go"
 )
 
 type LineajeParser struct{}
@@ -29,6 +31,20 @@ func newLineajeParser() *LineajeParser {
 	return &LineajeParser{}
 }
 
+// extractDistro extracts the distribution version from the purl
+// For example, "18.04" from "ubuntu-18.04"
+func extractDistro(qualifiers packageurl.Qualifiers) string {
+	distro, ok := qualifiers.Map()["distro"]
+	if !ok || distro == "" {
+		return ""
+	}
+	parts := strings.SplitN(distro, "-", 2)
+	if len(parts) == 2 {
+		return parts[1]
+	}
+	return distro
+}
+
 func (k *LineajeParser) parse(file string) (*v1alpha1.UpdateManifest, error) {
 	// Parse the Lineaje report
 	report, err := parseLineajeReport(file)
@@ -50,16 +66,46 @@ func (k *LineajeParser) parse(file string) (*v1alpha1.UpdateManifest, error) {
 		},
 	}
 
+	// Set of OS that are known to be part of Purls
+	osPurlTypes := map[string]struct{}{
+		"alpm":   {},
+		"apk":    {},
+		"deb":    {},
+		"rpm":    {},
+		"nix":    {},
+		"oci":    {},
+		"docker": {},
+		"qpkg":   {},
+	}
+
 	// Convert the Lineaje report to the standardized report
-	for i := range report.Packages {
-		pkgs := &report.Packages[i]
-		if pkgs.FixedVersion != "" {
-			updates.Updates = append(updates.Updates, v1alpha1.UpdatePackage{
-				Name: pkgs.Name,
-				InstalledVersion: pkgs.InstalledVersion,
-				FixedVersion: pkgs.FixedVersion,
-				VulnerabilityID: pkgs.VulnerabilityID,
-			})
+	var setOSDetails = false
+	for i := range report.Metadata.Basic_plan_component_vulnerability_fixes {
+		pkgs := &report.Metadata.Basic_plan_component_vulnerability_fixes[i]
+		if pkgs.Current_component_purl != "" && pkgs.Target_component_purl != "" {
+			installedInstance, err := packageurl.FromString(pkgs.Current_component_purl)
+			if err != nil {
+				return nil, err
+			}
+			_, exists := osPurlTypes[strings.ToLower(installedInstance.Type)]
+			if exists {
+				if !setOSDetails {
+					setOSDetails = true
+					updates.Metadata.OS.Type = installedInstance.Namespace
+					updates.Metadata.OS.Version = extractDistro(installedInstance.Qualifiers)
+					updates.Metadata.Config.Arch = installedInstance.Qualifiers.Map()["arch"]
+				}
+				targetInstance, err := packageurl.FromString(pkgs.Target_component_purl)
+				if err != nil {
+					return nil, err
+				}
+				updates.Updates = append(updates.Updates, v1alpha1.UpdatePackage{
+					Name: targetInstance.Name,
+					InstalledVersion: installedInstance.Version,
+					FixedVersion: targetInstance.Version,
+					VulnerabilityID: pkgs.Vulnerability_id,
+				})
+			}
 		}
 	}
 	return &updates, nil
