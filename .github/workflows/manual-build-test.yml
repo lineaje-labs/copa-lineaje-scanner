@@ -15,6 +15,11 @@ on:
         description: 'The name of the branch or tag to checkout'
         required: true
         type: string
+      version:
+        description: 'Optional version to pass to the build (e.g., 1.0.0)'
+        required: false
+        type: string
+        default: ''
 
 jobs:
   build-and-test:
@@ -26,7 +31,12 @@ jobs:
           ref: ${{ github.event.inputs.ref_type == 'branch' && format('refs/heads/{0}', github.event.inputs.ref_name) || format('refs/tags/{0}', github.event.inputs.ref_name) }}
 
       - name: Build
-        run: make
+        run: |
+          if [[ -n "${{ github.event.inputs.version }}" ]]; then
+            make CLI_VERSION=${{ github.event.inputs.version }}
+          else
+            make
+          fi
 
       - name: Test
         run: make test
