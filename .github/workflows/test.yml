@@ -23,7 +23,7 @@ jobs:
     permissions: read-all
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.3.1
+        uses: step-security/harden-runner@6c439dc8bdf85cadbbce9ed30d1c7b959517bc49 # v2.3.1
         with:
           egress-policy: audit
       - name: Check out code
@@ -34,4 +34,4 @@ jobs:
           CODECOV_OPTS: "-coverprofile=coverage.txt -covermode=atomic"
         run: make test
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
+        uses: codecov/codecov-action@18283e04ce6e62d37312384ff67231eb8fd56d24 # v5.4.3
