@@ -7,9 +7,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/lineaje-labs/copa-lineaje-scanner/internal/buildinfo"
 	"github.com/lineaje-labs/copa-lineaje-scanner/internal/fixplan"
+	"github.com/lineaje-labs/copacetic/pkg/types/v1alpha1"
 	"github.com/package-url/packageurl-go"
-	"github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
 )
 
 type LineajeParser struct{}
@@ -51,6 +52,7 @@ func (k *LineajeParser) Parse(fileName string) (*v1alpha1.UpdateManifest, error)
 				Arch: "",
 			},
 		},
+		PluginVersion: fmt.Sprintf("%s version %s-%s", buildinfo.Name, buildinfo.Version, buildinfo.BuildNum),
 	}
 
 	decoder := json.NewDecoder(file)
@@ -145,7 +147,9 @@ func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) 
 						updates.Updates = append(updates.Updates, v1alpha1.UpdatePackage{
 							Name:             targetInstance.Name,
 							InstalledVersion: installedInstance.Version,
+							InstalledPURL:    fix.CurrentComponentPurl,
 							FixedVersion:     targetInstance.Version,
+							FixedPURL:        fix.TargetComponentPurl,
 							VulnerabilityID:  fix.VulnerabilityId,
 						})
 					}
