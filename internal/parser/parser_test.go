@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/project-copacetic/copacetic/pkg/types/v1alpha1"
+	"github.com/lineaje-labs/copacetic/pkg/types/v1alpha1"
 )
 
 // Test newLineajeParser returns a non-nil parser pointer
@@ -56,42 +56,56 @@ func TestLineajeParser_Parse(t *testing.T) {
 						Name:             "ssl_client",
 						InstalledVersion: "1.36.0-r9",
 						FixedVersion:     "1.36.1-r7",
+						InstalledPURL:    "pkg:apk/alpine/ssl_client@1.36.0-r9?arch=x86_64&distro=alpine-3.18.0&upstream=busybox",
+						FixedPURL:        "pkg:apk/alpine/ssl_client@1.36.1-r7",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 					{
 						Name:             "musl",
 						InstalledVersion: "1.2.4-r0",
 						FixedVersion:     "1.2.4-r3",
+						InstalledPURL:    "pkg:apk/alpine/musl@1.2.4-r0?arch=x86_64&distro=alpine-3.18.0",
+						FixedPURL:        "pkg:apk/alpine/musl@1.2.4-r3",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 					{
 						Name:             "libssl3",
 						InstalledVersion: "3.1.0-r4",
 						FixedVersion:     "3.1.8-r0",
+						InstalledPURL:    "pkg:apk/alpine/libssl3@3.1.0-r4?arch=x86_64&distro=alpine-3.18.0&upstream=openssl",
+						FixedPURL:        "pkg:apk/alpine/libssl3@3.1.8-r0",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 					{
 						Name:             "musl-utils",
 						InstalledVersion: "1.2.4-r0",
 						FixedVersion:     "1.2.4-r3",
+						InstalledPURL:    "pkg:apk/alpine/musl-utils@1.2.4-r0?arch=x86_64&distro=alpine-3.18.0&upstream=musl",
+						FixedPURL:        "pkg:apk/alpine/musl-utils@1.2.4-r3",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 					{
 						Name:             "busybox-binsh",
 						InstalledVersion: "1.36.0-r9",
 						FixedVersion:     "1.36.1-r7",
+						InstalledPURL:    "pkg:apk/alpine/busybox-binsh@1.36.0-r9?arch=x86_64&distro=alpine-3.18.0&upstream=busybox",
+						FixedPURL:        "pkg:apk/alpine/busybox-binsh@1.36.1-r7",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 					{
 						Name:             "libcrypto3",
 						InstalledVersion: "3.1.0-r4",
 						FixedVersion:     "3.1.8-r0",
+						InstalledPURL:    "pkg:apk/alpine/libcrypto3@3.1.0-r4?arch=x86_64&distro=alpine-3.18.0&upstream=openssl",
+						FixedPURL:        "pkg:apk/alpine/libcrypto3@3.1.8-r0",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 					{
 						Name:             "busybox",
 						InstalledVersion: "1.36.0-r9",
 						FixedVersion:     "1.36.1-r7",
+						InstalledPURL:    "pkg:apk/alpine/busybox@1.36.0-r9?arch=x86_64&distro=alpine-3.18.0",
+						FixedPURL:        "pkg:apk/alpine/busybox@1.36.1-r7",
 						VulnerabilityID:  "CVE-1234-567",
 					},
 				},
@@ -119,6 +133,9 @@ func TestLineajeParser_Parse(t *testing.T) {
 			got, err := tt.parser.Parse(tt.file)
 			if (err != nil) != tt.wantErr {
 				t.Fatalf("LineajeParser.parse() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if got != nil { // Set the plugin version as an empty variable as it will change for every build
+				got.PluginVersion = ""
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("LineajeParser.parse() = %+v, want %+v", got, tt.want)
