@@ -38,7 +38,7 @@ jobs:
       - name: Determine Archive Name
         id: get_archive_name
         # Produces an archive name like copa-lineaje-scanner-1.0.0_linux_amd64.tar.gz
-        run: echo "name=copa-lineaje-scanner-${{ steps.get_version.outputs.version }}_linux_amd64.tar.gz" >> $GITHUB_OUTPUT
+        run: echo "name=copa-lineaje-scanner-${{ inputs.CLI_VERSION }}_linux_amd64.tar.gz" >> $GITHUB_OUTPUT
 
       - name: Create Release Archive
         run: |
