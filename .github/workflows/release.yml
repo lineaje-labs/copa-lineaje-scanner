@@ -20,12 +20,12 @@ jobs:
       release_archive_name: ${{ steps.get_archive_name.outputs.name }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: ${{ inputs.TAG_NAME }} # Checkout the specified tag
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: '1.24' # Updated Go version
 
