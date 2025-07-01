@@ -46,6 +46,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: ${{ steps.get_archive_name.outputs.name }}
+          tag_name: ${{ inputs.TAG_NAME }} # Release on the specified tag
           # The release will be created for the tag that triggered the workflow.
           # GITHUB_TOKEN is automatically provided.
           # Customize the release name and body if needed, e.g.:
