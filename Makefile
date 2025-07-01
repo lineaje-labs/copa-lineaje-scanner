@@ -16,7 +16,7 @@ OUT_DIR           := ./dist
 BINS_OUT_DIR      := $(OUT_DIR)/$(GOOS)_$(GOARCH)/$(BUILDTYPE_DIR)
 CLI_VERSION       := $(shell git describe --abbrev=0 --tags | sed -e 's/^v//g')
 CLI_BUILD_NUM     := ${BUILD_NUM}
-CLI_BINARY        := copa-lineaje-scanner_${CLI_VERSION}_$(GOOS)_$(GOARCH)
+CLI_BINARY        := copa-lineaje-scanner
 
 DEBUG ?= 1
 ifeq ($(DEBUG), 1)
