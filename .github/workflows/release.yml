@@ -16,6 +16,8 @@ jobs:
   build:
     name: Build Release Assets
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     outputs:
       release_archive_name: ${{ steps.get_archive_name.outputs.name }}
     steps:
