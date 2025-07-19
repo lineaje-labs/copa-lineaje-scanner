@@ -1,0 +1,98 @@
+{
+    "response_time": 0.00024890899658203125,
+    "answer": null,
+    "query_suggestions": null,
+    "view_details": {},
+    "meta_data": {
+        "total_components": 8,
+        "initial_irl": 5.5,
+        "direct_dependencies": {
+            "total": 1,
+            "oss": 0,
+            "private": 0,
+            "tp": 0,
+            "unknown": 1
+        },
+        "transitive_dependencies": {
+            "total": 7,
+            "oss": 0,
+            "private": 0,
+            "tp": 7,
+            "unknown": 0
+        },
+        "direct_vulnerabilities": {
+            "total": 0,
+            "oss": 0,
+            "private": 0,
+            "tp": 0,
+            "unknown": 0
+        },
+        "transitive_vulnerabilities": {
+            "total": 154,
+            "oss": 0,
+            "private": 0,
+            "tp": 154,
+            "unknown": 0
+        },
+        "total_vulnerability_count": 154,
+        "total_components_with_vulnerabilities": 6,
+        "vulnerable_components_with_fixes_in_basic_plan": 6,
+        "vulnerable_components_with_fixes_in_balanced_plan": 6,
+        "vulnerabilities_with_fixes_in_basic_plan": 68,
+        "vulnerabilities_with_fixes_in_balanced_plan": 80,
+        "basic_plan_component_vulnerability_fixes": [
+            {
+                "current_package_id": "2cebbe53-a534-5857-b175-8692895ff79e",
+                "current_sbom_id": "SPDXRef-DOCUMENT-vdna_8QVn7yllp0s7rg9x-8343423-8343424",
+                "target_hub_package_id": null,
+                "target_hub_sbom_id": null,
+                "current_component_purl": "pkg:apk/alpine/libssl1.1@1.1.1i-r0?arch=aarch64&distro=alpine-3.14.0_alpha20210212&upstream=openssl",
+                "target_component_purl": "pkg:apk/alpine/libssl1.1@1.1.1w-r1",
+                "fixed_vuln": 19
+            },
+            {
+                "current_package_id": "5cbe1b64-d8cc-5471-9564-4c826c77cda0",
+                "current_sbom_id": "SPDXRef-DOCUMENT-vdna_8QVn7yllp0s7rg9x-8343423-8343424",
+                "target_hub_package_id": null,
+                "target_hub_sbom_id": null,
+                "current_component_purl": "pkg:apk/alpine/ssl_client@1.33.0-r2?arch=aarch64&distro=alpine-3.14.0_alpha20210212&upstream=busybox",
+                "target_component_purl": "pkg:apk/alpine/ssl_client@1.33.1-r6",
+                "fixed_vuln": 13
+            },
+            {
+                "current_package_id": "ee1e7fc2-31e9-5fe3-9e7c-8d52b990bf2f",
+                "current_sbom_id": "SPDXRef-DOCUMENT-vdna_8QVn7yllp0s7rg9x-8343423-8343424",
+                "target_hub_package_id": null,
+                "target_hub_sbom_id": null,
+                "current_component_purl": "pkg:apk/alpine/zlib@1.2.11-r3?arch=aarch64&distro=alpine-3.14.0_alpha20210212",
+                "target_component_purl": "pkg:apk/alpine/zlib@1.2.12-r2",
+                "fixed_vuln": 2,
+                "vulnerability_id": "CVE-2025-2048"
+            },
+            {
+                "current_package_id": "f188d647-142d-5151-a62d-2847bd02fa8d",
+                "current_sbom_id": "SPDXRef-DOCUMENT-vdna_8QVn7yllp0s7rg9x-8343423-8343424",
+                "target_hub_package_id": null,
+                "target_hub_sbom_id": null,
+                "current_component_purl": "pkg:apk/alpine/busybox@1.33.0-r2?arch=aarch64&distro=alpine-3.14.0_alpha20210212",
+                "target_component_purl": "pkg:apk/alpine/busybox@1.33.1-r6",
+                "fixed_vuln": 13,
+                "vulnerability_id": "CVE-2025-2048"
+            }
+        ],
+        "basic_plan_inherent_risk_level": 6.666666666666667,
+        "basic_plan_updated_vulnerability_count": 86,
+        "balanced_plan_inherent_risk_level": 3.3333333333333335,
+        "balanced_plan_updated_vulnerability_count": 74,
+        "comprehensive_plan_inherent_risk_level": 2.3000000000000003,
+        "comprehensive_plan_updated_vulnerability_count": 0
+    },
+    "task_ids": [],
+    "column": null,
+    "view_schema": null,
+    "Greeting": null,
+    "guid": null,
+    "message": "",
+    "workflow_id": null,
+    "error": false
+}
