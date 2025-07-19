@@ -187,7 +187,7 @@ func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) 
 		"qpkg":   {},
 	}
 
-	setOSDetails := false
+	setArchDetails := false
 
 	// loop through tokens until you find "basic_plan_component_vulnerability_fixes"
 	for {
@@ -223,10 +223,8 @@ func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) 
 					}
 
 					if _, exists := osPurlTypes[strings.ToLower(installedInstance.Type)]; exists {
-						if !setOSDetails {
-							setOSDetails = true
-							updates.Metadata.OS.Type = installedInstance.Namespace
-							updates.Metadata.OS.Version = extractDistro(installedInstance.Qualifiers)
+						if !setArchDetails {
+							setArchDetails = true
 							updates.Metadata.Config.Arch = installedInstance.Qualifiers.Map()["arch"]
 						}
 
