@@ -44,8 +44,8 @@ func TestLineajeParser_Parse(t *testing.T) {
 				APIVersion: v1alpha1.APIVersion,
 				Metadata: v1alpha1.Metadata{
 					OS: v1alpha1.OS{
-						Type:    "alpine",
-						Version: "3.18.0",
+						Type:    "",
+						Version: "",
 					},
 					Config: v1alpha1.Config{
 						Arch: "x86_64",
@@ -108,6 +108,14 @@ func TestLineajeParser_Parse(t *testing.T) {
 						FixedPURL:        "pkg:apk/alpine/busybox@1.36.1-r7",
 						VulnerabilityID:  "CVE-1234-567",
 					},
+				},
+				ImageDetails: v1alpha1.ImageDetail{
+					Platform:        "docker-hub",
+					ImageRepository: "docker.io",
+					ImageName:       "alpine",
+					ImageVersion:    "3.18.0",
+					ImageDigest:     "sha256:02bb6f428431fbc2809c5d1b41eab5a68350194fb508869a33cb1af4444c9b11",
+					Private:         false,
 				},
 			},
 			wantErr: false,

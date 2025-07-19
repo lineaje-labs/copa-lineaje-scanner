@@ -53,22 +53,40 @@ func (k *LineajeParser) Parse(fileName string) (*v1alpha1.UpdateManifest, error)
 			},
 		},
 		PluginVersion: fmt.Sprintf("%s version %s-%s", buildinfo.Name, buildinfo.Version, buildinfo.BuildNum),
+		ImageDetails: v1alpha1.ImageDetail{
+			Platform:        "",
+			ImageRepository: "",
+			ImageName:       "",
+			ImageVersion:    "",
+			ImageDigest:     "",
+			Private:         false,
+		},
 	}
 
 	decoder := json.NewDecoder(file)
 
-	// Read tokens until we find the "meta_data" key at the root level
+	var (
+		seenMetaData, seenImageDetails bool
+	)
+
+	// Read tokens until we find the "meta_data" and "image_details" key at the root level
 	for {
 		tok, err := decoder.Token()
 		if err == io.EOF {
-			fmt.Println("Reached EOF without finding meta_data")
-			return nil, fmt.Errorf("expected start of meta_data object")
+			if !seenMetaData {
+				fmt.Println("Reached EOF without finding meta_data")
+				return nil, fmt.Errorf("expected start of meta_data object")
+			}
+			if !seenImageDetails {
+				fmt.Println("Reached EOF without finding image_details")
+				return nil, fmt.Errorf("expected start of image_details object")
+			}
 		} else if err != nil {
 			return nil, err
 		}
 
 		// We are looking for a string token with the value "meta_data"
-		if key, ok := tok.(string); ok && key == "meta_data" {
+		if key, ok := tok.(string); (ok && key == "meta_data") || (ok && key == "image_details") {
 			// The next token should be the start of the meta_data object
 			t, err := decoder.Token()
 			if err != nil {
@@ -77,10 +95,83 @@ func (k *LineajeParser) Parse(fileName string) (*v1alpha1.UpdateManifest, error)
 			if delim, ok := t.(json.Delim); !ok || delim != '{' {
 				return nil, fmt.Errorf("expected start of meta_data object")
 			}
-			// Now inside meta_data object
-			return streamAndConvertFixes(decoder, &updates)
+			switch key {
+			case "meta_data":
+				if _, err := streamAndConvertFixes(decoder, &updates); err != nil {
+					return nil, err
+				}
+				seenMetaData = true
+			case "image_details":
+				if _, err := streamAndConvertImageDetails(decoder, &updates); err != nil {
+					return nil, err
+				}
+				seenImageDetails = true
+			}
+		}
+
+		if seenMetaData && seenImageDetails {
+			break
 		}
 	}
+	return &updates, nil
+}
+
+func streamAndConvertImageDetails(dec *json.Decoder, updates *v1alpha1.UpdateManifest) (*v1alpha1.UpdateManifest, error) {
+	// We are currently positioned just after the '{' that starts image_details object
+	// So we need to read keys and values until we find the closing '}'
+	for {
+		t, err := dec.Token()
+		if err != nil {
+			return nil, err
+		}
+
+		// Check if end of object
+		if delim, ok := t.(json.Delim); ok && delim == '}' {
+			break
+		}
+
+		// Expect key to be a string
+		key, ok := t.(string)
+		if !ok {
+			return nil, fmt.Errorf("expected string key in image_details but got %T", t)
+		}
+
+		// Decode the value depending on key
+		switch key {
+		case "platform":
+			if err := dec.Decode(&updates.ImageDetails.Platform); err != nil {
+				return nil, err
+			}
+		case "image_repository":
+			if err := dec.Decode(&updates.ImageDetails.ImageRepository); err != nil {
+				return nil, err
+			}
+		case "image_name":
+			if err := dec.Decode(&updates.ImageDetails.ImageName); err != nil {
+				return nil, err
+			}
+		case "image_version":
+			if err := dec.Decode(&updates.ImageDetails.ImageVersion); err != nil {
+				return nil, err
+			}
+		case "image_digest":
+			if err := dec.Decode(&updates.ImageDetails.ImageDigest); err != nil {
+				return nil, err
+			}
+		case "private":
+			if err := dec.Decode(&updates.ImageDetails.Private); err != nil {
+				return nil, err
+			}
+		default:
+			// Skip unknown field by decoding into empty interface
+			var skip interface{}
+			if err := dec.Decode(&skip); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return updates, nil
 }
 
 func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) (*v1alpha1.UpdateManifest, error) {
@@ -96,7 +187,7 @@ func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) 
 		"qpkg":   {},
 	}
 
-	setOSDetails := false
+	setArchDetails := false
 
 	// loop through tokens until you find "basic_plan_component_vulnerability_fixes"
 	for {
@@ -132,10 +223,8 @@ func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) 
 					}
 
 					if _, exists := osPurlTypes[strings.ToLower(installedInstance.Type)]; exists {
-						if !setOSDetails {
-							setOSDetails = true
-							updates.Metadata.OS.Type = installedInstance.Namespace
-							updates.Metadata.OS.Version = extractDistro(installedInstance.Qualifiers)
+						if !setArchDetails {
+							setArchDetails = true
 							updates.Metadata.Config.Arch = installedInstance.Qualifiers.Map()["arch"]
 						}
 
