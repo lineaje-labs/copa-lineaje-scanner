@@ -44,8 +44,8 @@ func TestLineajeParser_Parse(t *testing.T) {
 				APIVersion: v1alpha1.APIVersion,
 				Metadata: v1alpha1.Metadata{
 					OS: v1alpha1.OS{
-						Type:    "alpine",
-						Version: "3.18.0",
+						Type:    "",
+						Version: "",
 					},
 					Config: v1alpha1.Config{
 						Arch: "x86_64",
