@@ -13,6 +13,20 @@ import (
 	"github.com/package-url/packageurl-go"
 )
 
+var (
+	// Set of OS that are known to be part of PURLs
+	osPurlTypes = map[string]struct{}{
+		"alpm":   {},
+		"apk":    {},
+		"deb":    {},
+		"rpm":    {},
+		"nix":    {},
+		"oci":    {},
+		"docker": {},
+		"qpkg":   {},
+	}
+)
+
 type LineajeParser struct{}
 
 func NewLineajeParser() *LineajeParser {
@@ -56,46 +70,54 @@ func (k *LineajeParser) Parse(fileName string) (*v1alpha1.UpdateManifest, error)
 	}
 
 	decoder := json.NewDecoder(file)
-
-	// Read tokens until we find the "meta_data" key at the root level
+	var seenMetaData, seenComponentDataList bool
+	// Read tokens until we find the "meta_data" or "component_data_list" key at the root level
+	var rootToken json.Token
 	for {
-		tok, err := decoder.Token()
+		rootToken, err = decoder.Token()
 		if err == io.EOF {
-			fmt.Println("Reached EOF without finding meta_data")
-			return nil, fmt.Errorf("expected start of meta_data object")
+			if !seenMetaData && !seenComponentDataList {
+				fmt.Println("Reached EOF without finding meta_data or component_data_list")
+				return nil, fmt.Errorf("expected start of meta_data or component_data_list object")
+			}
 		} else if err != nil {
 			return nil, err
 		}
 
-		// We are looking for a string token with the value "meta_data"
-		if key, ok := tok.(string); ok && key == "meta_data" {
-			// The next token should be the start of the meta_data object
-			t, err := decoder.Token()
+		// We are looking for a string token with the value "meta_data" of "component_data_list"
+		if key, ok := rootToken.(string); (ok && key == "meta_data") || (ok && key == "component_data_list") {
+			var childToken json.Token
+			childToken, err = decoder.Token()
 			if err != nil {
 				return nil, err
 			}
-			if delim, ok := t.(json.Delim); !ok || delim != '{' {
-				return nil, fmt.Errorf("expected start of meta_data object")
+			switch key {
+			case "meta_data":
+				if delim, ok := childToken.(json.Delim); !ok || delim != '{' {
+					return nil, fmt.Errorf("expected start of meta_data object")
+				}
+				if _, err = streamAndConvertFixes(decoder, &updates); err != nil {
+					return nil, err
+				}
+				seenMetaData = true
+			case "component_data_list":
+				if delim, ok := childToken.(json.Delim); !ok || delim != '[' { // This is an array and not an object
+					return nil, fmt.Errorf("expected start of component_data_list array")
+				}
+				if err = streamAndConvertComponentDataList(decoder, &updates); err != nil {
+					return nil, err
+				}
+				seenComponentDataList = true
 			}
-			// Now inside meta_data object
-			return streamAndConvertFixes(decoder, &updates)
+		}
+		if seenMetaData || seenComponentDataList {
+			break
 		}
 	}
+	return &updates, nil
 }
 
 func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) (*v1alpha1.UpdateManifest, error) {
-	// Set of OS that are known to be part of Purls
-	osPurlTypes := map[string]struct{}{
-		"alpm":   {},
-		"apk":    {},
-		"deb":    {},
-		"rpm":    {},
-		"nix":    {},
-		"oci":    {},
-		"docker": {},
-		"qpkg":   {},
-	}
-
 	setArchDetails := false
 
 	// loop through tokens until you find "basic_plan_component_vulnerability_fixes"
@@ -168,4 +190,58 @@ func streamAndConvertFixes(dec *json.Decoder, updates *v1alpha1.UpdateManifest) 
 	}
 
 	return updates, nil
+}
+
+func streamAndConvertComponentDataList(dec *json.Decoder, updates *v1alpha1.UpdateManifest) error {
+	setArchDetails := false
+
+	for {
+		// decode array elements one by one
+		for dec.More() {
+			var componentFixData fixplan.ComponentFixData
+			err := dec.Decode(&componentFixData)
+			if err != nil {
+				return err
+			}
+
+			// process each fix immediately
+			if componentFixData.CurrentComponentPURL != "" && componentFixData.FixedComponentPURL != "" {
+				installedInstance, err := packageurl.FromString(componentFixData.CurrentComponentPURL)
+				if err != nil {
+					return err
+				}
+
+				if _, exists := osPurlTypes[strings.ToLower(installedInstance.Type)]; exists {
+					if !setArchDetails {
+						setArchDetails = true
+						updates.Metadata.Config.Arch = installedInstance.Qualifiers.Map()["arch"]
+					}
+
+					targetInstance, err := packageurl.FromString(componentFixData.FixedComponentPURL)
+					if err != nil {
+						return err
+					}
+
+					updates.Updates = append(updates.Updates, v1alpha1.UpdatePackage{
+						Name:             targetInstance.Name,
+						InstalledVersion: installedInstance.Version,
+						InstalledPURL:    componentFixData.CurrentComponentPURL,
+						FixedVersion:     targetInstance.Version,
+						FixedPURL:        componentFixData.FixedComponentPURL,
+					})
+				}
+			}
+		}
+		// Process ']' which should come after component data array processing was completed
+		arrayToken, err := dec.Token()
+		if err != nil {
+			return err
+		}
+		if delim, ok := arrayToken.(json.Delim); !ok || delim != ']' {
+			return fmt.Errorf("expected end of array for component data")
+		}
+		break // All relevant data has been extracted
+	}
+
+	return nil
 }
