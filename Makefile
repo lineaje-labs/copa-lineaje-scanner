@@ -9,7 +9,7 @@ INFOMARK = $(shell printf "\033[34;1m=>\033[0m")
 GOARCH            := $(shell go env GOARCH)
 GOOS              := $(shell go env GOOS)
 BUILDTYPE_DIR     := release
-BUILD_NUM         := 2025
+BUILD_NUM         := 2026
 
 # Build output variables
 OUT_DIR           := ./dist
